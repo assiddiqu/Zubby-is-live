@@ -7,8 +7,45 @@
         <title>zubbyislive</title>
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
         <link rel="stylesheet" type="text/css" href="style.css">
+        <!-- index.html me <head> tag ke end me ye line add kare -->
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+        
     </head>
     <body>
+            <!-- Aapka existing JS scripts -->
+    <script src="script.js"></script>
+
+    <!-- Firebase SDK scripts -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <!-- Firebase View Counter Logic -->
+    <script>
+      var firebaseConfig = {
+        apiKey: "AIzaSyABa8ERq4kkvqbkzHgJ_cXJVW-F-U-wbyU",
+        authDomain: "dork-hub.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+        projectId: "dork-hub",
+        storageBucket: "dork-hub.firebasestorage.app",
+        messagingSenderId: "143650381570",
+        appId: "1:143650381570:web:961e22f165dcd29e0b2c1b"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      var db = firebase.database();
+      var counterRef = db.ref('views');
+
+      window.addEventListener("load", function () {
+        counterRef.transaction(current => (current || 0) + 1);
+      });
+
+      counterRef.on('value', snapshot => {
+        document.getElementById("view-count").innerText = snapshot.val() + " Views";
+      });
+    </script>
+  </body>
+</html>
         <!--body-->
         <header class="header">
             <a href="#" class="logo">zubby is live</a>
@@ -136,6 +173,7 @@
         <footer class="footer">
             <div class="footer-text">
                 <p>Copyright &copy; 2025 by zubby | All Rights Reserved.</p>
+                <p id="view-count">Loading...</p>
             </div>
             <div class="footer-iconTop">
                 <a href="#home"><i class='bx bx-up-arrow-alt' ></i></a>
