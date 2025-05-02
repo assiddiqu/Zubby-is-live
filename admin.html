@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body { background: #1f242d; color: white; font-family: Arial; padding: 2rem; }
+    h1 { color: #0ef; }
+    .panel { background: #323946; padding: 2rem; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Admin Panel</h1>
+  <div class="panel">
+    <h2>Total Views: <span id="admin-views">Loading...</span></h2>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyABa8ERq4kkvqbkzHgJ_cXJVW-F-U-wbyU",
+      authDomain: "dork-hub.firebaseapp.com",
+      databaseURL: "https://dork-hub-default-rtdb.firebaseio.com",
+      projectId: "dork-hub",
+      storageBucket: "dork-hub.firebasestorage.app",
+      messagingSenderId: "143650381570",
+      appId: "1:143650381570:web:961e22f165dcd29e0b2c1b"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
+    db.ref('views').on('value', snapshot => {
+      document.getElementById('admin-views').innerText = snapshot.val();
+    });
+  </script>
+</body>
+</html>
