@@ -1,22 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Dashboard</title>
+  <title>Secure Admin Panel</title>
   <style>
     body { background: #1f242d; color: white; font-family: Arial; padding: 2rem; }
     h1 { color: #0ef; }
-    .panel { background: #323946; padding: 2rem; border-radius: 8px; }
+    .panel, .login-box { background: #323946; padding: 2rem; border-radius: 8px; max-width: 400px; margin: auto; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+    button { background: #0ef; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
+
   <h1>Admin Panel</h1>
-  <div class="panel">
+
+  <div class="login-box" id="login-box">
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p id="login-error" style="color: red;"></p>
+  </div>
+
+  <div class="panel hidden" id="admin-panel">
     <h2>Total Views: <span id="admin-views">Loading...</span></h2>
   </div>
 
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
   <script>
+    // Firebase Config
     var firebaseConfig = {
       apiKey: "AIzaSyABa8ERq4kkvqbkzHgJ_cXJVW-F-U-wbyU",
       authDomain: "dork-hub.firebaseapp.com",
@@ -28,9 +43,26 @@
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
-    db.ref('views').on('value', snapshot => {
-      document.getElementById('admin-views').innerText = snapshot.val();
-    });
+
+    // Simple Username/Password Login
+    const ADMIN_USERNAME = "admin";
+    const ADMIN_PASSWORD = "zubby123";
+
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+        document.getElementById("login-box").classList.add("hidden");
+        document.getElementById("admin-panel").classList.remove("hidden");
+
+        db.ref('views').on('value', snapshot => {
+          document.getElementById('admin-views').innerText = snapshot.val();
+        });
+      } else {
+        document.getElementById("login-error").innerText = "Invalid username or password!";
+      }
+    }
   </script>
+
 </body>
 </html>
