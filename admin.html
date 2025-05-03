@@ -1,68 +1,109 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="en">
 <head>
-  <title>Secure Admin Panel</title>
-  <style>
-    body { background: #1f242d; color: white; font-family: Arial; padding: 2rem; }
-    h1 { color: #0ef; }
-    .panel, .login-box { background: #323946; padding: 2rem; border-radius: 8px; max-width: 400px; margin: auto; }
-    input { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
-    button { background: #0ef; padding: 10px 20px; border: none; border-radius: 5px; font-weight: bold; }
-    .hidden { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel (Firebase)</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+        .admin-panel { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="file"] { width: 100%; padding: 8px; }
+        button { padding: 10px 15px; margin-top: 10px; }
+        .post-list { margin-top: 30px; }
+        .post-item { padding: 10px; border: 1px solid #ddd; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
-<body>
+<body><div class="admin-panel">
+    <h2>Admin Panel</h2>
 
-  <h1>Admin Panel</h1>
+    <div class="form-group">
+        <label for="siteTitle">Website Title</label>
+        <input type="text" id="siteTitle" placeholder="Enter website title">
+        <button onclick="updateSiteTitle()">Update Title</button>
+    </div>
 
-  <div class="login-box" id="login-box">
-    <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
-    <p id="login-error" style="color: red;"></p>
-  </div>
+    <div class="form-group">
+        <label for="postTitle">New Post Title</label>
+        <input type="text" id="postTitle" placeholder="Enter post title">
+    </div>
 
-  <div class="panel hidden" id="admin-panel">
-    <h2>Total Views: <span id="admin-views">Loading...</span></h2>
-  </div>
+    <div class="form-group">
+        <label for="fileUpload">Upload File</label>
+        <input type="file" id="fileUpload">
+    </div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <button onclick="addPost()">Add Post</button>
 
-  <script>
-    // Firebase Config
-    var firebaseConfig = {
-      apiKey: "AIzaSyABa8ERq4kkvqbkzHgJ_cXJVW-F-U-wbyU",
-      authDomain: "dork-hub.firebaseapp.com",
-      databaseURL: "https://dork-hub-default-rtdb.firebaseio.com",
-      projectId: "dork-hub",
-      storageBucket: "dork-hub.firebasestorage.app",
-      messagingSenderId: "143650381570",
-      appId: "1:143650381570:web:961e22f165dcd29e0b2c1b"
+    <div class="post-list" id="postList">
+        <h3>Posts</h3>
+    </div>
+</div>
+
+<script>
+    // TODO: Replace with your own Firebase config
+    const firebaseConfig = {
+        apiKey: "AIzaSyABa8ERq4kkvqbkzHgJ_cXJVW-F-U-wbyU",
+        authDomain: "dork-hub.firebaseapp.com",
+        databaseURL: "https://dork-hub-default-rtdb.firebaseio.com",
+        projectId: "dork-hub",
+        storageBucket: "dork-hub.firebasestorage.app",
+        messagingSenderId: "143650381570",
+        appId: "1:143650381570:web:961e22f165dcd29e0b2c1b"
     };
+
     firebase.initializeApp(firebaseConfig);
-    var db = firebase.database();
+    const db = firebase.database();
 
-    // Simple Username/Password Login
-    const ADMIN_USERNAME = "admin";
-    const ADMIN_PASSWORD = "zubby123";
-
-    function login() {
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
-      if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
-        document.getElementById("login-box").classList.add("hidden");
-        document.getElementById("admin-panel").classList.remove("hidden");
-
-        db.ref('views').on('value', snapshot => {
-          document.getElementById('admin-views').innerText = snapshot.val();
-        });
-      } else {
-        document.getElementById("login-error").innerText = "Invalid username or password!";
-      }
+    function updateSiteTitle() {
+        const title = document.getElementById('siteTitle').value;
+        if (title) {
+            db.ref('siteTitle').set(title);
+            alert('Website title updated!');
+        }
     }
-  </script>
+
+    function addPost() {
+        const title = document.getElementById('postTitle').value;
+        const fileInput = document.getElementById('fileUpload');
+
+        if (title && fileInput.files.length > 0) {
+            const postId = db.ref().child('posts').push().key;
+            const postData = { id: postId, title: title };
+
+            db.ref('posts/' + postId).set(postData);
+            alert('Post added!');
+        } else {
+            alert('Please add a title and upload a file.');
+        }
+    }
+
+    function deletePost(id) {
+        db.ref('posts/' + id).remove();
+    }
+
+    function renderPosts(snapshot) {
+        const postList = document.getElementById('postList');
+        postList.innerHTML = '<h3>Posts</h3>';
+
+        snapshot.forEach(childSnapshot => {
+            const post = childSnapshot.val();
+            const div = document.createElement('div');
+            div.className = 'post-item';
+            div.innerHTML = `<span>${post.title}</span> <button onclick="deletePost('${post.id}')">Delete</button>`;
+            postList.appendChild(div);
+        });
+    }
+
+    db.ref('posts').on('value', snapshot => {
+        renderPosts(snapshot);
+    });
+</script>
 
 </body>
 </html>
